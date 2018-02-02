@@ -1,0 +1,208 @@
+//codeforprocessing
+
+import processing.serial.*;
+Serial myPort;
+PImage img;
+
+//creating layers + arrays
+//drawing variables
+boolean layer1 = true;
+boolean layer2 = false;
+boolean layer3 = false;
+
+//mode variables
+boolean restartDrawing = false;
+boolean drawing = true;
+boolean currentData = false;
+boolean saveButton = false;
+boolean previousData = false;
+boolean clearLayer2 = false;
+
+//display variables 
+boolean display1 = false;
+boolean display2 = false;
+boolean display3 = false;
+
+int[] xlayer1 = {};
+int[] ylayer1 = {};
+
+int[] xlayer2 = {};
+int[] ylayer2 = {};
+
+int[] xlayer3 = {};
+int[] ylayer3 = {};
+
+int led;
+int led2; 
+
+int xPos = 0;
+int yPos = 0;
+
+void setup(){
+ printArray(Serial.list()); //choosing serial port from list
+ String portname = Serial.list()[2];
+ println(portname);
+ myPort = new Serial(this,portname,9600); //inputing info
+ myPort.clear(); //clears out the buffer just in case
+ myPort.bufferUntil('\n'); //not gonna fire serial event until they get the new line
+ size(700,573);
+ background(255,255,255);
+ img = loadImage("blanksketch2.png");
+ 
+}
+
+void draw(){
+ //background(255);
+ //CHECKS FOR RESTARTING OF SCREEN
+ image(img, 0, 0);
+ ellipse(xPos,yPos,1,1);
+ 
+ if (restartDrawing == true){
+ background(255,255,255);
+ image(img, 0, 0);
+ println("RESTARTED DRAWING");
+ restartDrawing = false;
+ }
+ 
+ //CHECKS IF PERSON IS® IN DRAWING MODE (ON OR OFF), STARTS DRAWING
+ if (drawing == true){
+ println("ENTERING DRAWING LOOP");
+ if (layer1 == true){
+ println("DRAWING LAYER 1");
+ int Xcoordinate = xPos;
+ int Ycoordinate = yPos;
+ xlayer1 = append(xlayer1, Xcoordinate);
+ ylayer1 = append(ylayer1, Ycoordinate);
+ //DRAWS THE ELLIPSE
+ if ( (100 < xPos && xPos < 590) && (100 < yPos && yPos < 450)){ 
+ ellipse(xPos,yPos,1,1);
+ }
+ }
+ 
+ if (layer2 == true){
+ if (clearLayer2 == true){
+ background(255);
+ image(img, 0, 0);
+ clearLayer2 = false;
+ }
+ println("DRAWING LAYER 2");
+ int Xcoordinate = xPos;
+ int Ycoordinate = yPos;
+ xlayer2 = append(xlayer2, Xcoordinate);
+ ylayer2 = append(ylayer2, Ycoordinate);
+ //DRAWS THE ELLIPSE
+ if ( (100 < xPos && xPos < 590) && (100 < yPos && yPos < 450)){ 
+ ellipse(xPos,yPos,1,1);
+ }
+ }
+ 
+ }
+ 
+ //DISPLAYS DRAWING DEPENDING ON BUTTONS THAT ARE ON
+ if (drawing == false){
+ background(255);
+ 
+ if (display1 == true){
+ println("first layer visible");
+ for (int i = 0; i < (xlayer1.length - 1); i++){
+ line(xlayer1[i],ylayer1[i],xlayer1[i+1],ylayer1[i+1]); 
+ }
+ //restartDrawing = false;
+ }
+ 
+ else if (display2 == true){
+ //background(255);
+ println("second layer visible");
+ for (int i = 0; i < (xlayer2.length - 1); i++){
+ line(xlayer2[i],ylayer2[i],xlayer2[i+1],ylayer2[i+1]); 
+ }
+ 
+ //restartDrawing = false;
+ }
+ println("showing image in display");
+ image(img, 0, 0);
+ }
+
+ //CHECKING FOR SAVE/button press 
+ if (saveButton == true){
+ if (layer1 == true){
+ drawing = true;
+ layer1 = false;
+ layer2 = true;
+ clearLayer2 = true;
+ println("CHANGE TO LAYER 2");
+ }
+ else if (layer2 == true){
+ layer1 = false;
+ layer2 = false;
+ drawing = false;
+ println("CHANGE TO DRAWING PHASE");
+ }
+ }
+}
+
+//no need to call the function into the draw
+void serialEvent(Serial myPort){
+ String s = myPort.readStringUntil('\n');
+ s = trim(s); //will take out extra space in the string to avoid errors
+ println(s);
+ 
+ if (s!=null){
+ //if there's nothing present in this place we're looking for
+ //making sure there's something in S
+ int value[] = int(split(s,',')); //taking string and splitting it at ','
+ println("s!null");
+ if (value.length == 7){
+ xPos = (int)map(value[0],0,1023,0,width);
+ yPos = (int)map(value[1],0,1023,0,height);
+ 
+ //checking drawing mode
+ //if (value[2] == 1){
+ // drawing = true; 
+ //}
+ //else if (value[2] == 0){
+ // drawing = false; 
+ // //display1 = true;
+ //}
+ 
+ //checking display first drawing
+ if (value[3] == 1 && value[4] == 0){
+ println("VALUE 1 TRUE, GOING TO DISPLAY 1");
+ //drawing = false; //esto se pone al final despues
+ display1 = true;
+ //drawing = false; //CAMBIAR ESTO DESPUES DE QUE SIRVA EL BOTON
+ }
+ else {
+ println("VALUE 1 FALSE");
+ display1 = false;
+ //drawing = true;
+ }
+ 
+ //checking display second drawing
+ if (value[4] == 1 && value[3]==0){
+ println("VALUE 2 TRUE, GOING TO DISPLAY 2");
+ //layer2 = true;
+ display2 = true;
+ //drawing = false; //CAMBIAR ESTO DESPUES QUE SIRVA EL BOTON
+ }
+ else{
+ println("VALUE 2 FALSE");
+ //layer2 = false;
+ display2 = false;
+ //drawing = true;
+ }
+ 
+ //checking for saved state
+ if (value[6] == 1){
+ saveButton = true;
+ println("SAVE DATA TRUE");
+ }
+ else if (value[6] == 0){
+ saveButton = false;
+ println("SAVE DATA FALSE");
+ }
+ 
+ }
+ myPort.write(led+","+led2+"\n"); //will send a byte once it receives one
+ }
+}
