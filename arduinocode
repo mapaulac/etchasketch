@@ -1,0 +1,73 @@
+//code for arduino
+
+const int ledPin = 3;
+const int buttonModePin = 8;
+const int button1Pin = 13;
+const int button2Pin = 12;
+const int button3Pin = 11;
+const int restartPin = 7;
+
+bool isAvailable = true;
+
+int counter = 0;
+
+void setup() {
+ // put your setup code here, to run once:
+ Serial.begin(9600);
+ Serial.println("0,0"); 
+ pinMode(buttonModePin, INPUT);
+ pinMode(button1Pin, INPUT);
+ pinMode(button2Pin, INPUT);
+ pinMode(button3Pin, INPUT);
+ pinMode(restartPin, INPUT);
+ pinMode(ledPin,OUTPUT);
+}
+
+void loop() {
+ int buttonModeState;
+ int button1State;
+ int button2State;
+ int button3State;
+ int restartState; 
+
+ bool sendPressed = false;
+ 
+ buttonModeState = digitalRead(buttonModePin);
+ button1State = digitalRead(button1Pin);
+ button2State = digitalRead(button2Pin);
+ button3State = digitalRead(button3Pin);
+ restartState = digitalRead(restartPin);
+
+ if (restartState == HIGH){
+ if(isAvailable == true){
+ isAvailable = false;
+ sendPressed = true;
+ }
+ }
+ else{
+ isAvailable = true;
+ }
+ 
+ 
+// while (Serial.available()){ //only sending a byte when we need a byte 
+ int input = Serial.read(); //using the buffer so it doesn't fill up
+ int xPos = analogRead(A0);
+// xPos = xPos; //to assure we are in the right range (mapping)
+ int yPos = analogRead(A1);
+ Serial.print(xPos); //WITHOUT LN
+ Serial.print(',');
+ Serial.print(yPos);
+ Serial.print(',');
+ Serial.print(buttonModeState);
+ Serial.print(',');
+ Serial.print(button1State);
+ Serial.print(',');
+ Serial.print(button2State);
+ Serial.print(',');
+ Serial.print(button3State);
+ Serial.print(',');
+ Serial.println(sendPressed);
+ 
+// }
+
+ }
