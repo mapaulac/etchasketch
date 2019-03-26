@@ -1,5 +1,4 @@
-//code for arduino
-
+//ARDUINO CODE
 const int ledPin = 3;
 const int buttonModePin = 8;
 const int button1Pin = 13;
@@ -12,9 +11,9 @@ bool isAvailable = true;
 int counter = 0;
 
 void setup() {
- // put your setup code here, to run once:
  Serial.begin(9600);
  Serial.println("0,0"); 
+ //SETTING PINS
  pinMode(buttonModePin, INPUT);
  pinMode(button1Pin, INPUT);
  pinMode(button2Pin, INPUT);
@@ -48,13 +47,10 @@ void loop() {
  isAvailable = true;
  }
  
- 
-// while (Serial.available()){ //only sending a byte when we need a byte 
- int input = Serial.read(); //using the buffer so it doesn't fill up
+ int input = Serial.read(); //USING BUFFER
  int xPos = analogRead(A0);
-// xPos = xPos; //to assure we are in the right range (mapping)
  int yPos = analogRead(A1);
- Serial.print(xPos); //WITHOUT LN
+ Serial.print(xPos); 
  Serial.print(',');
  Serial.print(yPos);
  Serial.print(',');
@@ -67,7 +63,5 @@ void loop() {
  Serial.print(button3State);
  Serial.print(',');
  Serial.println(sendPressed);
- 
-// }
 
  }
