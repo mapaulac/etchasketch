@@ -1,16 +1,16 @@
-//codeforprocessing
+//PROCESSING CODE 
 
+//SERIAL COMMUNICATION 
 import processing.serial.*;
 Serial myPort;
 PImage img;
 
-//creating layers + arrays
-//drawing variables
+//CREATING LAYERS + ARRAYS
 boolean layer1 = true;
 boolean layer2 = false;
 boolean layer3 = false;
 
-//mode variables
+//DEFINING MODE VARIABLES
 boolean restartDrawing = false;
 boolean drawing = true;
 boolean currentData = false;
@@ -18,7 +18,7 @@ boolean saveButton = false;
 boolean previousData = false;
 boolean clearLayer2 = false;
 
-//display variables 
+//DISPLAY VARIABLES  
 boolean display1 = false;
 boolean display2 = false;
 boolean display3 = false;
